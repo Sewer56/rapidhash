@@ -94,12 +94,24 @@ pub fn bench_wyhash() -> Box<dyn FnMut(&mut Bencher)> {
     })
 }
 
-pub fn bench_xxhash() -> Box<dyn FnMut(&mut Bencher)> {
+pub fn bench_xxhash64() -> Box<dyn FnMut(&mut Bencher)> {
     Box::new(move |b: &mut Bencher| {
         b.iter_batched_ref(|| {
             Object::random()
         }, |o| {
-            let mut hasher = twox_hash::XxHash::default();
+            let mut hasher = twox_hash::XxHash64::default();
+            o.hash(&mut hasher);
+            hasher.finish()
+        }, criterion::BatchSize::SmallInput);
+    })
+}
+
+pub fn bench_xxhash3_64() -> Box<dyn FnMut(&mut Bencher)> {
+    Box::new(move |b: &mut Bencher| {
+        b.iter_batched_ref(|| {
+            Object::random()
+        }, |o| {
+            let mut hasher = twox_hash::XxHash3_64::default();
             o.hash(&mut hasher);
             hasher.finish()
         }, criterion::BatchSize::SmallInput);

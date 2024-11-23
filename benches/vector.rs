@@ -100,14 +100,28 @@ pub fn bench_wyhash_raw(size: usize) -> Box<dyn FnMut(&mut Bencher)> {
     })
 }
 
-pub fn bench_xxhash(size: usize) -> Box<dyn FnMut(&mut Bencher)> {
+pub fn bench_xxhash64(size: usize) -> Box<dyn FnMut(&mut Bencher)> {
     Box::new(move |b: &mut Bencher| {
         b.iter_batched_ref(|| {
             let mut slice = vec![0u8; size];
             OsRng.fill(slice.as_mut_slice());
             slice
         }, |bytes| {
-            let mut hasher = twox_hash::XxHash::default();
+            let mut hasher = twox_hash::XxHash64::default();
+            hasher.write(&bytes);
+            hasher.finish()
+        }, criterion::BatchSize::SmallInput);
+    })
+}
+
+pub fn bench_xxhash3_64(size: usize) -> Box<dyn FnMut(&mut Bencher)> {
+    Box::new(move |b: &mut Bencher| {
+        b.iter_batched_ref(|| {
+            let mut slice = vec![0u8; size];
+            OsRng.fill(slice.as_mut_slice());
+            slice
+        }, |bytes| {
+            let mut hasher = twox_hash::XxHash3_64::default();
             hasher.write(&bytes);
             hasher.finish()
         }, criterion::BatchSize::SmallInput);
